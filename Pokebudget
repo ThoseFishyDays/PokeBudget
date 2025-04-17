@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PokéBudget</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #C33C54;
+      background-image: repeating-linear-gradient(
+        45deg,
+        #C33C54,
+        #C33C54 21px,
+        #B7324A 21px,
+        #B7324A 52px
+      );
+      background-attachment: fixed;
+      background-size: 100% 100%;
+      color: #160C28;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .content-box {
+      background-color: #fa856e;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 700px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      flex-grow: 1;
+    }
+
+    .misc-box {
+      background-color: #fa856e;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 250px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      height: fit-content;
+    }
+
+    .hint {
+      margin: 10px 0;
+    }
+
+    button {
+      margin: 5px 0;
+      padding: 8px 12px;
+      background-color: #160C28;
+      color: #C33C54;
+      border: none;
+      cursor: pointer;
+    }
+
+    .disabled {
+      background-color: #ccc !important;
+      pointer-events: none;
+      color: #666 !important;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .misc-item {
+      display: block;
+      margin-bottom: 10px;
+      padding: 5px;
+      border: 1px solid #160C28;
+      border-radius: 5px;
+      min-width: 100px;
+      text-align: center;
+      background-color: #eee;
+    }
+
+    .misc-true {
+      background-color: #0F78A9;
+      color: white;
+    }
+
+    .misc-false {
+      background-color: #CC2936;
+      color: white;
+    }
+
+    input[type="text"] {
+      padding: 6px;
+      border: 1px solid #160C28;
+      background-color: #fff8e1;
+    }
+
+    /* >>> TYPE BADGES ADDED HERE <<< */
+    .type-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-weight: bold;
+      font-size: 0.875rem;
+      display: inline-block;
+      color: white;
+    }
+    .type-Normal { background-color: white; color: black; }
+    .type-Fire { background-color: orange; }
+    .type-Bug { background-color: lightgreen; color: black; }
+    .type-Dark { background-color: #333; }
+    .type-Flying { background-color: #a0b9d9; }
+    .type-Poison { background-color: purple; }
+    .type-Dragon { background-color: indigo; }
+    .type-Ghost { background-color: #8874a3; }
+    .type-Psychic { background-color: #FF475A; color: black; }
+    .type-Electric { background-color: yellow; color: black; }
+    .type-Grass { background-color: green; }
+    .type-Rock { background-color: #c2b280; }
+    .type-Fairy { background-color: pink; color: black; }
+    .type-Ground { background-color: brown; }
+    .type-Steel { background-color: #ccc; color: black; }
+    .type-Fighting { background-color: red; }
+    .type-Ice { background-color: lightblue; color: black; }
+    .type-Water { background-color: blue; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content-box">
+      <h1>PokéBudget</h1>
+      <p>You start with 14 coins. Use your coins to buy hints, then guess the Pokémon</p>
+      
+      <!-- >>> TYPE BADGE USAGE HERE <<< -->
+      <p><strong>Your Pokémon's first type is <span class="type-badge type-Psychic">Psychic</span>.</strong></p>
+      
+      <p id="startingCoins">Coins: 14</p>
+
+      <div class="hint" id="secondTypeHint" style="display: none;"></div>
+      <button id="revealSecondTypeButton">Reveal Second Type (6 coins)</button>
+
+      <div class="hint" id="generationHint"></div>
+      <button id="revealGenerationButton">Reveal Generation (6 coins)</button>
+
+      <div class="hint" id="evolutionHint"></div>
+      <button id="revealEvolutionButton">Reveal Evolution Stage (3 coins)</button>
+
+      <div class="hint" id="classificationHint"></div>
+      <button id="revealClassificationButton">Reveal Classification (2 coins)</button>
+
+      <div class="hint" id="pokedexHint"></div>
+      <button id="revealPokedexButton">Reveal Pokedex Entry (4 coins)</button>
+
+      <div class="hint" id="abilityHint"></div>
+      <button id="revealAbilityButton">Reveal Abilities (4 coins)</button>
+
+      <div class="hint">
+        <input type="text" id="guessInput" placeholder="Enter your guess" />
+        <button id="submitGuess">Guess</button>
+        <div id="guessResult"></div>
+      </div>
+    </div>
+
+    <div class="misc-box">
+      <h3>Miscellaneous Hints</h3>
+      <ul id="miscHints">
+        <li class="misc-item" id="legendary">Legendary</li>
+        <li class="misc-item" id="mythical">Mythical</li>
+        <li class="misc-item" id="baby">Baby</li>
+        <li class="misc-item" id="starter">In Starter Line</li>
+        <li class="misc-item" id="regional">Has Regional Form</li>
+        <li class="misc-item" id="mega">Has Mega</li>
+        <li class="misc-item" id="gmax">Has Gmax Form</li>
+        <li class="misc-item" id="altform">Has Alternative Form</li>
+        <li class="misc-item" id="ultrabeast">Ultrabeast</li>
+        <li class="misc-item" id="fossil">Fossil Pokémon</li>
+        <li class="misc-item" id="none">None Of The Above</li>
+      </ul>
+      <button id="revealMiscButton">Reveal Misc Hint (3 coins)</button>
+    </div>
+  </div>
+
+  <script>
+    let coins = 14;
+    const updateCoins = () => {
+      document.getElementById("startingCoins").textContent = "Coins: " + coins;
+    };
+
+    const disableButton = (id) => {
+      const btn = document.getElementById(id);
+      btn.disabled = true;
+      btn.classList.add("disabled");
+    };
+
+    const mysteryPokemon = {
+      name: "Beheeyem",
+      secondType: "None",
+      generation: "Unova",
+      evolutionStage: "Stage One",
+      classification: "Cerebral Pokémon",
+      pokedex: "It can manipulate an opponent’s memory. Apparently, it communicates by flashing its three different-colored fingers.",
+      ability: "Telepathy, Synchronize",
+      misc: {
+        legendary: false,
+        mythical: false,
+        baby: false,
+        starter: false,
+        regional: false,
+        mega: false,
+        gmax: false,
+        altform: false,
+        ultrabeast: false,
+        fossil: false, // You can set this to true for fossil Pokémon
+        none: true,
+      }
+    };
+
+    document.getElementById("revealSecondTypeButton").addEventListener("click", () => {
+      if (coins >= 6) {
+        coins -= 6;
+        document.getElementById("secondTypeHint").textContent = "Second Type: " + mysteryPokemon.secondType;
+        document.getElementById("secondTypeHint").style.display = "block";
+        updateCoins();
+        disableButton("revealSecondTypeButton");
+      }
+    });
+
+    document.getElementById("revealGenerationButton").addEventListener("click", () => {
+      if (coins >= 6) {
+        coins -= 6;
+        document.getElementById("generationHint").textContent = "Generation: " + mysteryPokemon.generation;
+        updateCoins();
+        disableButton("revealGenerationButton");
+      }
+    });
+
+    document.getElementById("revealEvolutionButton").addEventListener("click", () => {
+      if (coins >= 3) {
+        coins -= 3;
+        document.getElementById("evolutionHint").textContent = "Evolution Stage: " + mysteryPokemon.evolutionStage;
+        updateCoins();
+        disableButton("revealEvolutionButton");
+      }
+    });
+
+    document.getElementById("revealClassificationButton").addEventListener("click", () => {
+      if (coins >= 2) {
+        coins -= 2;
+        document.getElementById("classificationHint").textContent = "Classification: " + mysteryPokemon.classification;
+        updateCoins();
+        disableButton("revealClassificationButton");
+      }
+    });
+
+    document.getElementById("revealPokedexButton").addEventListener("click", () => {
+      if (coins >= 4) {
+        coins -= 4;
+        document.getElementById("pokedexHint").textContent = "Pokedex Entry: " + mysteryPokemon.pokedex;
+        updateCoins();
+        disableButton("revealPokedexButton");
+      }
+    });
+
+    document.getElementById("revealAbilityButton").addEventListener("click", () => {
+      if (coins >= 4) {
+        coins -= 4;
+        document.getElementById("abilityHint").textContent = "Ability: " + mysteryPokemon.ability;
+        updateCoins();
+        disableButton("revealAbilityButton");
+      }
+    });
+
+    // Miscellaneous logic
+    const revealedMiscKeys = new Set();
+
+    document.getElementById("revealMiscButton").addEventListener("click", () => {
+      if (coins < 3) return;
+
+      const validHints = Object.entries(mysteryPokemon.misc)
+        .filter(([key, value]) => value && !revealedMiscKeys.has(key));
+
+      if (validHints.length === 0) {
+        disableButton("revealMiscButton");
+        return;
+      }
+
+      const [nextKey] = validHints[0];
+      const el = document.getElementById(nextKey);
+      el.classList.add("misc-true");
+      revealedMiscKeys.add(nextKey);
+      coins -= 3;
+      updateCoins();
+
+      if (Object.entries(mysteryPokemon.misc).filter(([k, v]) => v).length === revealedMiscKeys.size) {
+        disableButton("revealMiscButton");
+      }
+
+      if (coins < 3) {
+        disableButton("revealMiscButton");
+      }
+    });
+
+    document.getElementById("submitGuess").addEventListener("click", () => {
+      const guess = document.getElementById("guessInput").value.trim().toLowerCase();
+      const normalize = str => str.replace(/[’‘']/g, "'").toLowerCase();
+      if (normalize(guess) === normalize(mysteryPokemon.name)) {
+        document.getElementById("guessResult").innerHTML = "🎉 <strong>Correct! The Pokémon was Beheeyem!</strong> 🎉";
+      } else {
+        document.getElementById("guessResult").innerHTML = "❌ <strong>Incorrect. Try again!</strong>";
+      }
+    });
+  </script>
+</body>
+</html>
+
+
